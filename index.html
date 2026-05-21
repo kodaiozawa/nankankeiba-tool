@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南関競馬 予想法ツール</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #0f1620; color: #e0e0e0; padding: 15px; line-height: 1.6; }
+        h1 { color: #ffcc00; text-align: center; }
+        label { display: block; margin: 12px 0 5px; font-weight: bold; }
+        select, input, button { padding: 12px; margin: 8px 0; font-size: 16px; width: 100%; max-width: 420px; border-radius: 6px; }
+        button { background: #ffcc00; color: black; font-weight: bold; border: none; cursor: pointer; }
+        button:hover { background: #ffd633; }
+        .result { background: #1e2a3a; padding: 20px; border-radius: 12px; margin-top: 25px; }
+        .buy { color: #00ff88; font-weight: bold; }
+        .dontbuy { color: #ff6666; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>南関競馬 予想法ツール</h1>
+    
+    <label>会場</label>
+    <select id="venue">
+        <option value="大井">大井</option>
+        <option value="川崎">川崎</option>
+        <option value="船橋">船橋</option>
+        <option value="浦和">浦和</option>
+    </select>
+
+    <label>レース番号</label>
+    <select id="race">
+        <option value="1">1R</option><option value="2">2R</option><option value="3">3R</option>
+        <option value="4">4R</option><option value="5">5R</option><option value="6">6R</option>
+        <option value="7">7R</option><option value="8">8R</option><option value="9">9R</option>
+        <option value="10">10R</option><option value="11">11R</option><option value="12">12R</option>
+    </select>
+
+    <label>馬場</label>
+    <select id="track">
+        <option value="稍重">稍重</option>
+        <option value="重">重</option>
+        <option value="良">良</option>
+    </select>
+
+    <h3>オッズ入力（1〜3人気）</h3>
+    1人気 馬番: <input id="pop1" type="number" placeholder="例: 7"><br>
+    単勝オッズ: <input id="odds1" type="number" step="0.1" placeholder="2.3"><br><br>
+    
+    2人気 馬番: <input id="pop2" type="number" placeholder="例: 12"><br>
+    単勝オッズ: <input id="odds2" type="number" step="0.1" placeholder="5.4"><br><br>
+    
+    3人気 馬番: <input id="pop3" type="number" placeholder="例: 5"><br>
+    単勝オッズ: <input id="odds3" type="number" step="0.1" placeholder="9.8"><br><br>
+
+    <button onclick="generatePrediction()">予想を生成する</button>
+
+    <div id="result" class="result"></div>
+
+    <script>
+    function generatePrediction() {
+        const venue = document.getElementById('venue').value;
+        const race = document.getElementById('race').value + "R";
+        const track = document.getElementById('track').value;
+        const p1 = document.getElementById('pop1').value || "？";
+        const o1 = parseFloat(document.getElementById('odds1').value) || 99;
+
+        let confidence = 75;
+        if (track === "稍重" || track === "重") confidence += 12;
+        if (o1 < 3.5) confidence += 10;
+
+        let expectText = (o1 > 6) ? "低め" : "普通〜やや高め";
+        let recText = (o1 > 7) ? "買わない方が良いかも" : "買う価値あり";
+
+        let html = `<h2>${venue} ${race}　${track}馬場</h2>`;
+        html += `<p><strong>推奨軸:</strong> ${p1}番</p>`;
+        html += `<p><strong>自信度:</strong> ${confidence}%</p>`;
+        html += `<p class="${o1 > 7 ? 'dontbuy' : 'buy'}"><strong>期待値: ${expectText}</strong><br>${recText}</p>`;
+        
+        html += `<h3>3連単一点（1000円）</h3><p>${p1} → ${parseInt(p1)+5 || 12} → ${parseInt(p1)+6 || 13}</p>`;
+        html += `<h3>フォーメーション（1200円）</h3><p>1着: ${p1}<br>2着: ${parseInt(p1)+5 || 12}・${parseInt(p1)+6 || 13}・${parseInt(p1)+3 || 10}<br>3着: 穴2〜3頭</p>`;
+        html += `<p><strong>合計: 3000円</strong></p>`;
+
+        document.getElementById('result').innerHTML = html;
+    }
+    </script>
+</body>
+</html>
