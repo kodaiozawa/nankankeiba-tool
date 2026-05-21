@@ -12,8 +12,8 @@
         button { background: #ffcc00; color: black; font-weight: bold; border: none; cursor: pointer; }
         button:hover { background: #ffd633; }
         .result { background: #1e2a3a; padding: 20px; border-radius: 12px; margin-top: 25px; }
-        .buy { color: #00ff88; }
-        .dontbuy { color: #ff6666; }
+        .buy { color: #00ff88; font-weight: bold; }
+        .dontbuy { color: #ff6666; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -42,30 +42,34 @@
         <option value="良">良</option>
     </select><br><br>
 
-    <button onclick="generatePrediction()">予想を生成する</button>
+    <button onclick="generatePrediction()">今日のスタイルで予想生成</button>
 
     <div id="result" class="result"></div>
 
     <script>
     function generatePrediction() {
         const venue = document.getElementById('venue').value;
-        const race = document.getElementById('race').value + "R";
+        const raceNo = parseInt(document.getElementById('race').value);
         const track = document.getElementById('track').value;
 
-        let axis = "7";
-        if (race === "10R" || race === "12R") axis = "8";
-        if (race === "11R") axis = "10";
+        // 今日のあなたの予想スタイルを反映
+        let axis = 7;
+        if ([10, 12].includes(raceNo)) axis = 8;
+        if (raceNo === 11) axis = 10;
+        if (raceNo <= 4) axis = 6;
 
-        let confidence = (track === "稍重" || track === "重") ? 82 : 74;
+        let confidence = (track === "稍重" || track === "重") ? 84 : 72;
+        let expect = (track === "稍重" || track === "重") ? "やや高め" : "普通";
 
-        let html = `<h2>${venue} ${race}　${track}馬場</h2>`;
+        let html = `<h2>${venue} ${raceNo}R　${track}馬場</h2>`;
         html += `<p><strong>推奨軸:</strong> ${axis}番（好位パワー型）</p>`;
         html += `<p><strong>自信度:</strong> ${confidence}%</p>`;
-        html += `<p class="buy"><strong>期待値: 普通〜やや高め</strong><br>買う価値あり</p>`;
+        html += `<p class="buy"><strong>期待値: ${expect}</strong><br>買う価値あり</p>`;
         
-        html += `<h3>3連単一点（1000円）</h3><p>${axis} → ${parseInt(axis)+5} → ${parseInt(axis)+3}</p>`;
+        html += `<h3>3連単一点（1000円）</h3><p>${axis} → ${axis+5} → ${axis+3}</p>`;
         html += `<h3>フォーメーション（1200円）</h3>`;
-        html += `<p>1着: ${axis}<br>2着: ${parseInt(axis)+5}・${parseInt(axis)+3}・${parseInt(axis)+2}<br>3着: ${parseInt(axis)+5}・${parseInt(axis)+3}・${parseInt(axis)+2}・9・4</p>`;
+        html += `<p>1着: ${axis}<br>2着: ${axis+5}・${axis+3}・${axis+2}<br>3着: ${axis+5}・${axis+3}・${axis+2}・9・4</p>`;
+        html += `<p><strong>馬単（500円）</strong><br>${axis} → ${axis+5}　300円<br>${axis} → ${axis+3}　200円</p>`;
         html += `<p><strong>合計: 3000円</strong></p>`;
 
         document.getElementById('result').innerHTML = html;
